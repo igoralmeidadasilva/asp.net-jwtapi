@@ -20,7 +20,7 @@ public sealed class CustomerRepository : BaseSqliteRepository, ICustomerReposito
 
     public async Task CreateCustomer(Customer customer)
     {
-        string sql = @"INSERT INTO Customers (id, name, login, password) VALUES (@Id, @Name, @Login, @Password);";
+        string sql = @"INSERT INTO Customers (id, name, login, password, role) VALUES (@Id, @Name, @Login, @Password, @Role);";
         try
         {
             using var conn = await OpenConnection();
@@ -30,7 +30,8 @@ public sealed class CustomerRepository : BaseSqliteRepository, ICustomerReposito
                 Id = customer.Id.ToString(),
                 Name = customer.Name,
                 Login = customer.Login,
-                Password = customer.Password
+                Password = customer.Password,
+                Role = customer.Role.ToString()
             };
             
             var response = await conn.ExecuteAsync(sql, queryObject).ConfigureAwait(false);;
@@ -93,4 +94,24 @@ public sealed class CustomerRepository : BaseSqliteRepository, ICustomerReposito
         }
     }
 
+    public async Task<Customer> GetByName(string name)
+    {
+        string sql = @"SELECT * FROM Customers WHERE login = @Login";
+        try
+        {   
+            var conn = await OpenConnection();
+            var queryObject = new
+            {
+                Name = name
+            };
+            var response = (await conn.QueryAsync<Customer>(sql, queryObject).ConfigureAwait(false)).FirstOrDefault();
+            await conn.CloseAsync();
+            return response!;
+        }
+        catch(SqliteException ex)
+        {
+            _logger.LogError("Error in database access - {GetByName}: {ex}.", nameof(GetByName), ex);
+            throw;
+        }
+    }
 }

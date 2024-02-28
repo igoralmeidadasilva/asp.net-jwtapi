@@ -8,4 +8,5 @@ public interface ICustomerRepository
     Task<IEnumerable<Customer>> GetAllCustomer();
     Task<Customer> GetByLogin(string name);
     Task UpdateCustomerPassword(Customer customer);
+    Task<Customer> GetByName(string name);
 }

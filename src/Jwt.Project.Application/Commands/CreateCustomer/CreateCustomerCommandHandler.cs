@@ -19,7 +19,7 @@ public class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerComman
     public async Task<Unit> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Start Creating Customer {TimeStamp}.", DateTime.Now);
-        var customer = new Customer(request.Name, request.Login, request.Password);
+        var customer = new Customer(request.Name, request.Login, request.Password, request.Role);
         await _repo.CreateCustomer(customer);
         _logger.LogInformation("End Creating Customer {TimeStamp}.", DateTime.Now);
         return Unit.Value;

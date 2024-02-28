@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Jwt.Project.Domain.Enums;
 using MediatR;
 
 namespace Jwt.Project.Application.Commands.CreateCustomer
@@ -11,5 +12,7 @@ namespace Jwt.Project.Application.Commands.CreateCustomer
         public string Login { get; set; } = string.Empty;
         [Required]
         public string Password { get; set; } = string.Empty;
+        [Required]
+        public CustomerRole Role { get; set; }
     }
 }

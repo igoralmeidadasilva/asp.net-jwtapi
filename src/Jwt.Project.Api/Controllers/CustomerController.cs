@@ -5,6 +5,8 @@ using System.Text;
 using Jwt.Project.Application.Commands.CreateCustomer;
 using Jwt.Project.Application.Commands.LoginCustomer;
 using Jwt.Project.Application.Commands.UpdateCustomer;
+using Jwt.Project.Application.Querys.GetCustomerByName;
+using Jwt.Project.Domain.Enums;
 using Jwt.Project.Domain.Interfaces.Services;
 using Jwt.Project.Domain.Models;
 using MediatR;
@@ -101,6 +103,30 @@ public sealed class CustomerController : ControllerBase
         catch(Exception ex)
         {
             _logger.LogError("Error in {UpdateCustomer}: {ex}", nameof(UpdateCustomerPassword), ex);  
+            var response = ResponseBase.GenerateResponse(errors: [ex.Message]);
+            return StatusCode(StatusCodes.Status500InternalServerError, response);
+        }
+   }
+
+   [HttpGet(nameof(GetCustomerByName))]
+   [Authorize(Roles = "Premium")]
+   public async Task<ActionResult<ResponseBase>> GetCustomerByName([FromQuery]GetCustomerByNameQuery request)
+   {
+        try
+        {
+            _logger.LogInformation("Start {methodName} trying login {customerName}", nameof(GetCustomerByName), request.Name);
+            var response = await _mediator.Send(request);
+            _logger.LogInformation("Feach {customerName} Success.", request.Name);
+            return Ok(ResponseBase.GenerateResponse(data: response));
+        }
+        catch(UserNotFoundException ex)
+        {
+            _logger.LogError("{name} - Customer Not Found.", nameof(GetCustomerByName));
+            return NotFound(ResponseBase.GenerateResponse(errors: [ex.Message])); 
+        }
+        catch(Exception ex)
+        {
+            _logger.LogError("Error in {methodName}: {ex}", nameof(GetCustomerByName), ex);  
             var response = ResponseBase.GenerateResponse(errors: [ex.Message]);
             return StatusCode(StatusCodes.Status500InternalServerError, response);
         }

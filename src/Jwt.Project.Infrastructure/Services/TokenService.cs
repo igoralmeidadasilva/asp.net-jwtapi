@@ -12,12 +12,10 @@ namespace Jwt.Project.Infrastructure.Services;
 
 public sealed class TokenService : ITokenService
 {
-    private IConfiguration _configuration;
     private readonly IOptions<JwtAuthenticationOptions> _jwtOptions;
 
-    public TokenService(IConfiguration configuration, IOptions<JwtAuthenticationOptions> jwtOptions)
+    public TokenService(IOptions<JwtAuthenticationOptions> jwtOptions)
     {
-        _configuration = configuration;
         _jwtOptions = jwtOptions;
     }
 
@@ -30,9 +28,10 @@ public sealed class TokenService : ITokenService
         {
             Subject = new ClaimsIdentity(new Claim[]
             {
-                new Claim(ClaimTypes.Name, customer.Name)
+                new Claim(ClaimTypes.Name, customer.Name.ToString()),
+                new Claim(ClaimTypes.Role, customer.Role.ToString())
             }),
-            Expires = DateTime.UtcNow.AddHours(3),
+            Expires = DateTime.UtcNow.AddHours(_jwtOptions.Value.ExpiredAt),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
 
